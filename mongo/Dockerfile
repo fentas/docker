@@ -4,6 +4,10 @@ MAINTAINER Jan Guth <jan.guth@gmail.com>
 ENV MONGO_MAJOR 3.1
 ENV MONGO_VERSION 3.1.6
 
+# set cluster child (shards, config) server ips
+# e.g. x.x.x.x:pppp[,...]
+ENV MONGO_CLUSTER_SERVER
+
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r mongodb && useradd -r -g mongodb mongodb
 
@@ -69,7 +73,6 @@ RUN \
 VOLUME /data/db
 VOLUME /data/configdb
 
-RUN mkdir /opt
 COPY ./cluster /opt
 
 COPY docker-entrypoint.sh /entrypoint.sh
