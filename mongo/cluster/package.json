@@ -8,7 +8,6 @@
     "url": "git://github.com/fentas/docker/mongo-cluster"
   },
   "dependencies": {
-    "forever": "^0.15.1",
     "minimist": "^1.1.3",
     "mongodb-core": "^1.2.10"
   },

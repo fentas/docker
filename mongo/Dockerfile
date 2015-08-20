@@ -19,11 +19,12 @@ RUN groupadd -r mongodb && useradd -r -g mongodb mongodb
 # !busybox -> don't list busybox
 # !grub -> don't list grub (we need a boot manager. If LILO or something else is used change this)
 # !initramfs-tools -> don't list initramfs-tools (else the kernel is gone)
+# --
+# apt-get purge $(aptitude search '~i!~M!~prequired!~pimportant!~R~prequired!~R~R~prequired!~R~pimportant!~R~R~pimportant!busybox!grub!initramfs-tools' | awk '{print $2}') && \
+# apt-get purge aptitude && \
+# apt-get autoremove && \
+# apt-get clean && \
 RUN \
-  apt-get purge $(aptitude search '~i!~M!~prequired!~pimportant!~R~prequired!~R~R~prequired!~R~pimportant!~R~R~pimportant!busybox!grub!initramfs-tools' | awk '{print $2}') && \
-  apt-get purge aptitude && \
-  apt-get autoremove && \
-  apt-get clean && \
   apt-get update && \
   apt-get install -y --no-install-recommends \
     ca-certificates curl \
@@ -59,8 +60,13 @@ RUN set -x && \
   && rm -rf /var/lib/mongodb \
   && mv /etc/mongod.conf /etc/mongod.conf.orig
 
-RUN mkdir -p /data/db && chown -R mongodb:mongodb /data/db
+RUN npm install -g forever
+
+RUN \
+  mkdir -p /data/db && chown -R mongodb:mongodb /data/db && \
+  mkdir -p /data/configdb && chown -R mongodb:mongodb /data/configdb
 VOLUME /data/db
+VOLUME /data/configdb
 
 RUN mkdir /opt
 COPY ./cluster /opt
@@ -68,5 +74,6 @@ COPY ./cluster /opt
 COPY docker-entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
+EXPOSE 29017
 EXPOSE 27017
 CMD ["mongod"]
