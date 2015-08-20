@@ -1,22 +1,27 @@
 var argv = require('minimist')(process.argv.slice(2)),
-    mongo = require('mongodb-core')
+    mongo = require('mongodb-core'),
     dgram = require("dgram"),
-    server = dgram.createSocket("udp4")
+    udp = dgram.createSocket("udp4"),
+    instances = require('libs/cluster-instances'),
+    jsonb = require('json-buffer')
 
-server.on("error", function (err) {
+
+udp.on("error", function (err) {
   console.log("server error:\n" + err.stack);
-  server.close();
-});
+  udp.close();
+  process.exit(1)
+})
 
-server.on("message", function (msg, rinfo) {
+udp.on("message", function (msg, rinfo) {
   console.log("server got: " + msg + " from " +
     rinfo.address + ":" + rinfo.port);
-});
+})
 
-server.on("listening", function () {
-  var address = server.address();
-  console.log("server listening " +
-      address.address + ":" + address.port);
-});
+udp.bind(29017);
 
-server.bind(29017);
+for ( var instance in instances.getInstances() ) {
+  instance = instance.split(':')
+
+  var cmd = jsonb({cmd: "status"})
+  udp.send(cmd, 0, cmd.length, instance[1], instance[0])
+}
