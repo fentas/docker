@@ -7,7 +7,6 @@
 # ENV CONFIG_FLAGS="--fully-static --without-npm" DEL_PKGS="libgcc libstdc++" RM_DIRS=/usr/include
 #
 FROM gliderlabs/alpine:3.2
-
 ENV VERSION=v0.12.7 CMD=node DOMAIN=nodejs.org
 
 RUN apk-install curl make gcc g++ python linux-headers paxctl libgcc libstdc++ && \
