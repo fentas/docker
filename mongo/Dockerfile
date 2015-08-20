@@ -29,6 +29,7 @@ RUN \
   apt-get install -y --no-install-recommends \
     ca-certificates curl \
     numactl \
+    apt-transport-https \
   && rm -rf /var/lib/apt/lists/*
 
 # grab gosu for easy step-down from root
