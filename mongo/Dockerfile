@@ -6,7 +6,8 @@ ENV MONGO_VERSION 3.1.6
 
 # set cluster child (shards, config) server ips
 # e.g. x.x.x.x:pppp[,...]
-ENV MONGO_CLUSTER_SERVER
+#
+#ENV MONGO_CLUSTER_SERVER
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r mongodb && useradd -r -g mongodb mongodb
