@@ -3,7 +3,7 @@ var argv = require('minimist')(process.argv.slice(2)),
     dgram = require("dgram"),
     instances = require('libs/cluster-instances'),
     jsonb = require('json-buffer'),
-    instance = require('./instance')
+    common = require('../libs/common')
 
 module.exports = exports = new function() {
   var middlewares = [],
@@ -16,8 +16,15 @@ module.exports = exports = new function() {
   })
 
   udp.on("message", function (msg, rinfo) {
-    var msg = JSON.parse(msg.toString('utf8'))
-    msg.args.unshift([msg.event, new instance(rinfo)])
+    var msg = JSON.parse(msg.toString('utf8')),
+        instance = common.getInstances()[rinfo.host+':'+rinfo.port]
+
+    if ( ! instance ) {
+      console.log('New instance recognized', rinfo)
+      instance = common.addInstance(rinfo)
+    }
+
+    msg.args.unshift([msg.event, instance])
     for ( var i = 0 ; i < middleware.length ; i++ ) {
       middleware[i].emit.apply(middleware[i], args)
     }

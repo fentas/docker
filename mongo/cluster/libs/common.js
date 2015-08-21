@@ -2,18 +2,30 @@ var argv = require('minimist')(process.argv.slice(2)),
     mongo = require('mongodb-core'),
     udp = require('../utils/udp'),
     middleware = require('../utils/middleware'),
+    instance = require('../utils/instance'),
     exec = require('../utils/exec'),
-    util = require('util')
+    util = require('util'),
+    dns = require('dns')
 
 
 
 util.inherits(common, middleware)
 function common() {
-  this.instances = []
+  this.instances = {}
+  this.count = 0
 }
 
-common.prototype.getInstances = function() {
-  var env = process.env['MONGO_CLUSTER_INSTANCES']
+common.prototype.addInstance = function(host) {
+  var inst = new instance(host)
+  return this.instances[inst.getFullAddress()] = inst;
+}
+common.prototype.getInstances = function(cb) {
+  if ( typeof cb !== 'function' ) return this.instances
+
+  var env = process.env['MONGO_CLUSTER_INSTANCES'],
+      instances = '',
+      self = this
+  self.instances = {}
 
   if ( env.text(/^https?:/) ) {
 
@@ -21,32 +33,88 @@ common.prototype.getInstances = function() {
   else if ( env.test(/^#/) ) {
     env = exec(env.substr(1))
     if ( env.code === 0 )
-      this.instances = env.output
+      instances = env.output
   }
-  else this.instances = env
+  else instances = env
 
-  if ( this.instances.test(/^(\d{3}\.\d{3})\.\d{3}\.\d{3},?)*$/) {
-    this.instances = this.instances.split(',')
+  if ( instances.test(/^(.+,?)*$/) { //\d{3}\.\d{3})\.\d{3}\.\d{3}
+    instances = instances.split(',')
+    self.count = instances.length
+
+    for ( var i = 0 ; i < instances.length ; i++ ) {
+      dns.lookup(instances[i].split(':')[0], function(error, address, family) {
+        if ( err ) {
+          //TODO: what to do? ignore it?
+          console.warn('Could not resolve ['+instances[i]+']')
+          --self.count
+          return
+        }
+
+        var faddress = address + (instances[i].split(':')[1] || '')
+        self.instances[faddress] = new instance(faddress)
+        self.instances[faddress].set({
+          error: error,
+          family: family
+        })
+
+        if ( Object.keys(self.instances).length == self.count )
+          cb(self.instances)
+      })
+    }
+
+
   }
   else throw new TypeError('Maleformed MONGO_CLUSTER_INSTANCES')
-
-  return this.instances
 }
 
-common.prototype.brodcast = function() {
-  for ( var i = 0 ; i < this.instances.length ; i++ ) {
-    var instance = new instance(this.instances[i])
-    instance.emit('status')
-  }
+common.prototype.brodcast = function(cb) {
+  var self = this
+
+  self.getInstances(function(instances) {
+    for ( address in self.instances )
+      self.instances[address].emit('ping')
+
+    var tries = 0
+    function allResponded() {
+      var count = 0,
+          again = {}
+
+      for ( address in self.instances ) {
+        if ( typeof self.instances[address].get('status') !== 'undefined' )
+          ++count
+        else
+          again[] = self.instances[address]
+      }
+
+      if ( self.count == count ) {
+        cb()
+        return
+      }
+      else if ( ++tries > process.env['MONGO_CLUSTER_RETRIES'] ) {
+        //TODO: what to do? ~ ignore or exit?
+        throw new Error('Given server not responding..')
+      }
+      else for ( var i = 0 ; i < again.length ; i++ )
+        again[i].emit('ping')
+
+      setTimeout(allResponded, process.env['MONGO_CLUSTER_TIMEOUT'])
+    }
+    setTimeout(allResponded, process.env['MONGO_CLUSTER_TIMEOUT'])
+  })
 }
 
 
 module.exports = exports = new function() {
-  var use = new middleware(),
-      responses = {}
+  var use = new common(),
+      responses = []
 
-  use.on("status", function (instance) {
-    
+  use.on('ping', function(instance) {
+    // get status
+
+  })
+
+  use.on('status', function (instance, status) {
+    instance.set('status', status)
   })
 
 
