@@ -1,16 +1,36 @@
-var dgram = require("dgram"),
+var argv = require('minimist')(process.argv.slice(2)),
+    dgram = require("dgram"),
     config = require('../config'),
     udp = dgram.createSocket("udp4")
 
 
 function instance(host) {
-  if ( typeof host == 'string' )
-    host = host.split(':').map(function(data) { return {address: data[0], port: data[1]} })
+  if ( typeof host !== 'undefined' ) {
+    if ( typeof host === 'string' )
+      host = host.split(':').map(function(data) { return {address: data[0], port: data[1]} })
 
-  this.address = host.address
-  this.port = host.port || config.udp.port
+    this.address = host.address
+    this.port = host.port || config.udp.port
 
-  this.data = {}
+    this.data = {}
+    return this
+  }
+
+  this.set('argv', argv)
+  switch ( argv._[0] ) {
+    case 'mongod':
+      if ( argv['configsvr'] ) {
+        this.set('type', 'configsvr')
+      }
+      else {
+        this.set('type', 'mongod')
+      }
+      
+      break;
+    case 'mongos':
+      this.set('type', 'mongos')
+      break;
+  }
 }
 
 instance.prototype.emit = function(event) {

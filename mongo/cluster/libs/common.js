@@ -106,11 +106,12 @@ common.prototype.brodcast = function(cb) {
 
 module.exports = exports = new function() {
   var use = new common(),
-      responses = []
+      responses = [],
+      local = new instance()
 
   use.on('ping', function(instance) {
     // get status
-
+    instance.emit('status', local.toJSON())
   })
 
   use.on('status', function (instance, status) {

@@ -8,6 +8,7 @@ ENV MONGO_VERSION 3.1.6
 # e.g. x.x.x.x:pppp[,...]
 #
 #ENV MONGO_CLUSTER_INSTANCES
+ENV MONGO_CLUSTER_HOST=$(hostname --ip-address)
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r mongodb && useradd -r -g mongodb mongodb
