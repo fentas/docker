@@ -42,24 +42,32 @@ common.prototype.getInstances = function(cb) {
     self.count = instances.length
 
     for ( var i = 0 ; i < instances.length ; i++ ) {
-      dns.lookup(instances[i].split(':')[0], function(error, address, family) {
-        if ( err ) {
-          //TODO: what to do? ignore it?
-          console.warn('Could not resolve ['+instances[i]+']')
-          --self.count
-          return
+      dns.resolve(instances[i], 'A', function(error, addresses) {
+        if ( error ) {
+          dns.lookup(instances[i].split(':')[0], 4, function(error, address, family) {
+            if ( err ) {
+              //TODO: what to do? ignore it?
+              console.warn('Could not resolve ['+instances[i]+']')
+              --self.count
+              return
+            }
+
+            var faddress = address + (':'+instances[i].split(':')[1] || '').replace(/:$/, '')
+            self.instances[faddress] = new instance(faddress)
+
+            if ( Object.keys(self.instances).length == self.count )
+              cb(self.instances)
+          })
         }
+        continue
+      }
+      self.count += addresses.length - 1
 
-        var faddress = address + (instances[i].split(':')[1] || '')
-        self.instances[faddress] = new instance(faddress)
-        self.instances[faddress].set({
-          error: error,
-          family: family
-        })
-
-        if ( Object.keys(self.instances).length == self.count )
-          cb(self.instances)
-      })
+      for ( var x = 0 ; x < addresses.length ; x++ )
+        self.instances[addresses[x]] = new instance(addresses[x])
+      
+      if ( Object.keys(self.instances).length == self.count )
+        cb(self.instances)
     }
 
 
