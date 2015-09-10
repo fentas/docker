@@ -12,10 +12,10 @@
 
 FROM ubuntu:12.04
 
-MAINTAINER fentas <jan.guth.so>
+MAINTAINER fentas <jan.guth@gmail.com>
 
 # Env
-ENV SLIMERJS_VERSION_F 0.9.5
+ENV SLIMERJS_VERSION_F 0.9.6
 ENV CASPERJS_VERSION_T master
 
 # Commands
@@ -41,4 +41,5 @@ RUN \
   apt-get clean all
 
 # Default command
-CMD ["/usr/bin/slimerjs"]
+ENTRYPOINT "slimerjs"
+CMD ["--help"]
