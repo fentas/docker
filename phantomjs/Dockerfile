@@ -20,8 +20,8 @@ ENV CASPERJS_VERSION master
 
 # Commands
 RUN \
-  echo "deb http://us-west-2.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse\
-  deb http://us-west-2.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse\
+  echo "deb http://us-west-2.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
+  deb http://us-west-2.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
   deb http://us-west-2.ec2.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse" | tee /etc/apt/sources.list.d/multiverse.list && \
   apt-get update && \
   apt-get upgrade -y && \
