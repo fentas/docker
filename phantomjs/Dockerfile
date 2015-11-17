@@ -10,24 +10,22 @@
 
 # VERSION 1.0.1
 
-FROM ubuntu:14.04
+FROM ubuntu:12.04
 
 MAINTAINER fentas <jan.guth.so>
 
 # Env
-ENV PHANTOMJS_VERSION master
+ENV PHANTOMJS_VERSION 2.0
 ENV CASPERJS_VERSION master
 
 # Commands
 RUN \
-#  echo "deb http://us-west-2.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
-#  deb http://us-west-2.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
-#  deb http://us-west-2.ec2.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse" | tee /etc/apt/sources.list.d/multiverse.list && \ ttf-mscorefonts-installer
   apt-get update && \
   apt-get upgrade -y && \
-  apt-get install -y build-essential g++ flex bison gperf ruby perl \
+  apt-get install -y vim git wget libfreetype6 libfontconfig bzip2 \
+  build-essential g++ flex bison gperf ruby perl \
   libsqlite3-dev libfontconfig1-dev libicu-dev libfreetype6 libssl-dev \
-  libpng-dev libjpeg-dev python libx11-dev libxext-dev && \
+  libpng-dev libjpeg-dev python && \
   mkdir -p /srv/var && \
   git clone https://github.com/ariya/phantomjs.git /tmp/phantomjs && \
   cd /tmp/phantomjs && git checkout $PHANTOMJS_VERSION && \
