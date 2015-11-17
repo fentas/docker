@@ -10,12 +10,12 @@
 
 # VERSION 1.0.1
 
-FROM ubuntu:12.04
+FROM ubuntu:14.04
 
 MAINTAINER fentas <jan.guth.so>
 
 # Env
-ENV PHANTOMJS_VERSION 2.0
+ENV PHANTOMJS_VERSION master
 ENV CASPERJS_VERSION master
 
 # Commands
