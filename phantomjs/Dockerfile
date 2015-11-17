@@ -22,10 +22,9 @@ ENV CASPERJS_VERSION master
 RUN \
   apt-get update && \
   apt-get upgrade -y && \
-  apt-get install -y vim git wget libfreetype6 libfontconfig bzip2 \
-  build-essential g++ flex bison gperf ruby perl \
+  apt-get install -y build-essential g++ flex bison gperf ruby perl \
   libsqlite3-dev libfontconfig1-dev libicu-dev libfreetype6 libssl-dev \
-  libpng-dev libjpeg-dev python && \
+  libpng-dev libjpeg-dev python libx11-dev libxext-dev ttf-mscorefonts-installer && \
   mkdir -p /srv/var && \
   git clone https://github.com/ariya/phantomjs.git /tmp/phantomjs && \
   cd /tmp/phantomjs && git checkout $PHANTOMJS_VERSION && \
