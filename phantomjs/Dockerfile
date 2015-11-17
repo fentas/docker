@@ -20,14 +20,14 @@ ENV CASPERJS_VERSION master
 
 # Commands
 RUN \
-  echo "deb http://us-west-2.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
-  deb http://us-west-2.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
-  deb http://us-west-2.ec2.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse" | tee /etc/apt/sources.list.d/multiverse.list && \
+#  echo "deb http://us-west-2.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
+#  deb http://us-west-2.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
+#  deb http://us-west-2.ec2.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse" | tee /etc/apt/sources.list.d/multiverse.list && \ ttf-mscorefonts-installer
   apt-get update && \
   apt-get upgrade -y && \
   apt-get install -y build-essential g++ flex bison gperf ruby perl \
   libsqlite3-dev libfontconfig1-dev libicu-dev libfreetype6 libssl-dev \
-  libpng-dev libjpeg-dev python libx11-dev libxext-dev ttf-mscorefonts-installer && \
+  libpng-dev libjpeg-dev python libx11-dev libxext-dev && \
   mkdir -p /srv/var && \
   git clone https://github.com/ariya/phantomjs.git /tmp/phantomjs && \
   cd /tmp/phantomjs && git checkout $PHANTOMJS_VERSION && \
